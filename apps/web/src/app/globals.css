@@ -1,0 +1,703 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 217 50% 20%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 37 35% 61%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 37 35% 61%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 20% 90%;
+    --input: 214 20% 90%;
+    --ring: 217 50% 20%;
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+}
+
+/* ===== MARKDOWN DOCUMENT STYLES ===== */
+
+.markdown-body {
+  color: #1a1a2e;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 15px;
+  line-height: 1.75;
+  word-wrap: break-word;
+}
+
+/* --- Headings --- */
+
+.markdown-body h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1B2B4B;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #C5A572;
+  line-height: 1.3;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-body h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1B2B4B;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #e5e7eb;
+  line-height: 1.35;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-body h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2D4A7A;
+  margin-top: 1.75rem;
+  margin-bottom: 0.625rem;
+  line-height: 1.4;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-body h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  scroll-margin-top: 5rem;
+}
+
+.markdown-body h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #4b5563;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body h1:first-child {
+  margin-top: 0;
+}
+
+/* --- Paragraphs & Body Text --- */
+
+.markdown-body p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.markdown-body strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.markdown-body em {
+  font-style: italic;
+}
+
+/* --- Links --- */
+
+.markdown-body a {
+  color: #2D4A7A;
+  text-decoration: underline;
+  text-decoration-color: #C5A572;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+
+.markdown-body a:hover {
+  color: #1B2B4B;
+}
+
+/* --- Lists --- */
+
+.markdown-body ul {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-left: 1.75rem;
+  list-style-type: disc;
+}
+
+.markdown-body ol {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  padding-left: 1.75rem;
+  list-style-type: decimal;
+}
+
+.markdown-body li {
+  margin-bottom: 0.375rem;
+  color: #1f2937;
+}
+
+.markdown-body li > p {
+  margin-bottom: 0.375rem;
+}
+
+.markdown-body ul ul,
+.markdown-body ol ul {
+  list-style-type: circle;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.markdown-body ul ul ul {
+  list-style-type: square;
+}
+
+/* --- Inline Code --- */
+
+.markdown-body .auto-code {
+  background-color: #f1f5f9;
+  color: #1B2B4B;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  border: 1px solid #e2e8f0;
+}
+
+/* --- Code Blocks --- */
+
+/* Base: any <pre> in the document */
+.markdown-body pre {
+  background-color: #0f172a;
+  color: #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+  border: 1px solid #1e293b;
+  position: relative;
+}
+
+.markdown-body pre.code-block {
+  /* same as base — class exists for specificity */
+}
+
+/* Any <code> inside <pre>: ALWAYS block style, never inline */
+.markdown-body pre code,
+.markdown-body pre .auto-code,
+.markdown-body pre .block-code {
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  color: #e2e8f0 !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: inherit;
+  white-space: pre;
+  word-break: normal;
+  display: block;
+  border-radius: 0;
+}
+
+.markdown-body pre code .code-lang-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-family: 'Inter', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  pointer-events: none;
+}
+
+/* --- Tables --- */
+
+.markdown-body .table-wrapper {
+  overflow-x: auto;
+  margin: 1.25rem 0;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.markdown-body table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.markdown-body thead {
+  background: #1B2B4B;
+}
+
+.markdown-body th {
+  color: #ffffff;
+  font-weight: 500;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.markdown-body td {
+  padding: 0.625rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+  vertical-align: top;
+}
+
+.markdown-body tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.markdown-body tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.markdown-body tbody tr:hover {
+  background: #f1f5f9;
+}
+
+/* --- Blockquotes --- */
+
+.markdown-body blockquote {
+  margin: 1.25rem 0;
+  padding: 0.75rem 1.25rem;
+  border-left: 4px solid #C5A572;
+  background: #fefcf3;
+  color: #4b5563;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+
+.markdown-body blockquote p {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-body blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Horizontal Rules --- */
+
+.markdown-body hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #C5A572, transparent);
+  margin: 2rem 0;
+}
+
+/* --- Images --- */
+
+.markdown-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+/* --- Mermaid Diagrams --- */
+
+.markdown-body .mermaid-container {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #fafbfc;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  text-align: center;
+  min-height: 80px;
+}
+
+.markdown-body .mermaid-rendered {
+  margin: 1.5rem 0;
+  padding: 1.5rem;
+  background: #fafbfc;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.markdown-body .mermaid-rendered svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.markdown-body .mermaid-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #9ca3af;
+  font-size: 0.8125rem;
+  padding: 1rem;
+}
+
+.markdown-body .mermaid-loading-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #C5A572;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.markdown-body .mermaid-error {
+  margin: 1.5rem 0;
+}
+
+.markdown-body .mermaid-error-box {
+  padding: 1rem 1.25rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #991b1b;
+  font-size: 0.8125rem;
+}
+
+.markdown-body .mermaid-error-box p {
+  margin-bottom: 0.5rem;
+  color: #991b1b;
+}
+
+.markdown-body .mermaid-error-box pre {
+  background: #fff5f5;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  color: #b91c1c;
+  overflow-x: auto;
+  margin: 0;
+}
+
+/* --- Figure captions (bold text after diagrams) --- */
+
+.markdown-body .mermaid-rendered + p strong:first-child,
+.markdown-body .mermaid-container + p strong:first-child {
+  color: #4b5563;
+  font-size: 0.875rem;
+}
+
+/* --- Definition-like patterns (commonly used in TDDs) --- */
+
+.markdown-body dl {
+  margin: 1rem 0;
+}
+
+.markdown-body dt {
+  font-weight: 600;
+  color: #1B2B4B;
+  margin-top: 0.75rem;
+}
+
+.markdown-body dd {
+  margin-left: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+}
+
+/* --- Ensure no unexpected black blocks --- */
+
+.markdown-body pre,
+.markdown-body code,
+.markdown-body pre code {
+  tab-size: 2;
+}
+
+/* --- TDD Cover Page --- */
+
+.markdown-body .tdd-cover-page {
+  background: linear-gradient(135deg, rgba(27, 43, 75, 0.99) 0%, rgba(45, 74, 122, 0.99) 100%);
+  border-radius: 0.75rem;
+  margin: 0 0 2.5rem;
+  padding: 3.5rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.markdown-body .tdd-cover-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(197, 165, 114, 0.1) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.markdown-body .tdd-cover-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.markdown-body .tdd-cover-logo {
+  margin-bottom: 2rem;
+}
+
+.markdown-body .tdd-cover-logo img {
+  height: 20px;
+  width: auto;
+  display: inline-block;
+  margin: 0;
+  border-radius: 0;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+}
+
+.markdown-body .tdd-cover-divider {
+  width: 60px;
+  height: 2px;
+  background: #C5A572;
+  margin: 0 auto 2rem;
+  border-radius: 1px;
+}
+
+.markdown-body .tdd-cover-title {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  margin: 0 0 0.75rem !important;
+  padding: 0 !important;
+  border: none !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.01em;
+}
+
+.markdown-body .tdd-cover-subtitle {
+  font-size: 1.05rem !important;
+  font-weight: 300 !important;
+  color: #C5A572 !important;
+  margin: 0 0 2rem !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.markdown-body .tdd-cover-date {
+  font-size: 0.8125rem !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  margin: 0 !important;
+  letter-spacing: 0.02em;
+}
+
+.markdown-body > *:first-child {
+  margin-top: 0 !important;
+}
+
+.markdown-body > .tdd-cover-page + * {
+  margin-top: 0 !important;
+}
+
+.markdown-body > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* ===== GENERATION PROGRESS BAR ===== */
+
+.generation-progress-bar {
+  animation: progress-indeterminate 2s ease-in-out infinite;
+  width: 40%;
+}
+
+@keyframes progress-indeterminate {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ===== WYSIWYG EDITOR STYLES ===== */
+
+.wysiwyg-editor-wrapper {
+  width: 100%;
+  min-height: 100%;
+  padding-bottom: 2rem;
+}
+
+.wysiwyg-page {
+  width: 100%;
+  max-width: 816px;
+  min-height: calc(100vh - 16rem);
+  margin: 0 auto;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.04);
+  border-radius: 0.5rem;
+  padding: 3rem 3.5rem;
+  outline: none;
+  cursor: text;
+}
+
+.wysiwyg-page:focus {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.06), 0 0 0 2px rgba(197, 165, 114, 0.2);
+}
+
+/* Floating toolbar (when portaled, position is set inline to fixed) */
+.wysiwyg-toolbar {
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: #1e293b;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  animation: toolbar-fade-in 0.15s ease-out;
+}
+
+@keyframes toolbar-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wysiwyg-toolbar button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 0.375rem;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.1s;
+}
+
+.wysiwyg-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.wysiwyg-toolbar-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 2px;
+}
+
+/* Non-editable blocks inside WYSIWYG */
+.wysiwyg-code-block {
+  background: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-radius: 0.5rem;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  font-size: 0.8125rem;
+  font-family: 'JetBrains Mono', monospace;
+  cursor: default;
+  border: 1px solid #1e293b;
+  overflow-x: auto;
+}
+
+.wysiwyg-code-block code {
+  background: none !important;
+  color: inherit !important;
+  padding: 0 !important;
+  border: none !important;
+  font-size: inherit;
+}
+
+.mermaid-wysiwyg-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  cursor: default;
+  text-align: center;
+}
+
+.mermaid-wysiwyg-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.mermaid-wysiwyg-block pre {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: none !important;
+  font-size: 0.75rem;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  text-align: left;
+  margin: 0;
+}
+
+.wysiwyg-table-block {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  cursor: default;
+}
+
+.wysiwyg-table-block pre {
+  background: none !important;
+  color: #374151 !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 0.75rem;
+  white-space: pre-wrap;
+}
+
+/* Inline code in WYSIWYG */
+.wysiwyg-page .inline-code {
+  background-color: #f1f5f9;
+  color: #1B2B4B;
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  border: 1px solid #e2e8f0;
+}
