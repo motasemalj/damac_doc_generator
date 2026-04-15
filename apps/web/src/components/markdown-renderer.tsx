@@ -9,6 +9,7 @@ import { getDocumentStructure } from '@/lib/document-structure';
 interface MarkdownRendererProps {
   content: string;
   className?: string;
+  highlightChanges?: boolean;
 }
 
 let mermaidCounter = 0;
@@ -93,9 +94,11 @@ function replaceDamacLogoRefs(md: string): string {
   return s;
 }
 
-export const MarkdownRenderer = memo(function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {
+export const MarkdownRenderer = memo(function MarkdownRenderer({ content, className = '', highlightChanges = false }: MarkdownRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const renderIdRef = useRef(0);
+  const prevElementTextsRef = useRef<string[]>([]);
+  const pendingHighlightRef = useRef(false);
 
   const renderMermaidDiagrams = useCallback(async () => {
     if (!containerRef.current) return;
@@ -149,9 +152,37 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({ content, classN
   );
 
   useEffect(() => {
+    if (highlightChanges) {
+      pendingHighlightRef.current = true;
+    }
+  }, [highlightChanges]);
+
+  useEffect(() => {
     const timer = setTimeout(renderMermaidDiagrams, 200);
     return () => clearTimeout(timer);
   }, [bodyMarkdown, renderMermaidDiagrams]);
+
+  useEffect(() => {
+    if (!containerRef.current || !pendingHighlightRef.current) {
+      prevElementTextsRef.current = containerRef.current
+        ? captureRendererElementTexts(containerRef.current)
+        : [];
+      return;
+    }
+
+    pendingHighlightRef.current = false;
+    const oldTexts = prevElementTextsRef.current;
+    const container = containerRef.current;
+
+    requestAnimationFrame(() => {
+      applyRendererHighlights(container, oldTexts);
+      const firstHighlighted = container.querySelector('.ai-edit-highlight');
+      if (firstHighlighted) {
+        firstHighlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      prevElementTextsRef.current = captureRendererElementTexts(container);
+    });
+  }, [bodyMarkdown]);
 
   const components: Components = useMemo(() => ({
     pre({ children, node, ...props }) {
@@ -619,6 +650,40 @@ function injectGeneratedTableOfContents(markdown: string): string {
     ...replacementLines,
     ...lines.slice(nextHeadingLineIndex),
   ].join('\n').replace(/\n{3,}/g, '\n\n').trim();
+}
+
+function captureRendererElementTexts(container: HTMLElement): string[] {
+  return Array.from(container.children).map((el) => (el.textContent || '').trim());
+}
+
+function applyRendererHighlights(container: HTMLElement, oldTexts: string[]): void {
+  const newElements = Array.from(container.children);
+  if (newElements.length === 0 || oldTexts.length === 0) return;
+
+  let prefixMatch = 0;
+  const minLen = Math.min(oldTexts.length, newElements.length);
+  while (prefixMatch < minLen && (newElements[prefixMatch].textContent || '').trim() === oldTexts[prefixMatch]) {
+    prefixMatch++;
+  }
+
+  let suffixMatch = 0;
+  const maxSuffix = Math.min(oldTexts.length - prefixMatch, newElements.length - prefixMatch);
+  while (suffixMatch < maxSuffix) {
+    const oldIdx = oldTexts.length - 1 - suffixMatch;
+    const newIdx = newElements.length - 1 - suffixMatch;
+    if ((newElements[newIdx].textContent || '').trim() === oldTexts[oldIdx]) {
+      suffixMatch++;
+    } else {
+      break;
+    }
+  }
+
+  const changeStart = prefixMatch;
+  const changeEnd = newElements.length - suffixMatch;
+
+  for (let i = changeStart; i < changeEnd; i++) {
+    newElements[i].classList.add('ai-edit-highlight');
+  }
 }
 
 export function extractTocItems(markdown: string): TocItem[] {

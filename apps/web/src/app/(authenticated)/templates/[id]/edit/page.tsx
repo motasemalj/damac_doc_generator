@@ -13,6 +13,7 @@ import {
   FileText, Shield, Database, GitBranch,
   Layout, BookOpen, ListChecks, BarChart3,
   Server, Code, Settings, Activity, AlertTriangle, Cpu,
+  Globe, Layers, FolderTree, Workflow, Link2, Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -29,6 +30,10 @@ const CATEGORY_CONFIG: Record<string, { label: string; color: string; bg: string
   api: { label: 'API', color: 'text-rose-700', bg: 'bg-rose-50 border-rose-200' },
   methods: { label: 'Methods', color: 'text-cyan-700', bg: 'bg-cyan-50 border-cyan-200' },
   config: { label: 'Config', color: 'text-slate-700', bg: 'bg-slate-50 border-slate-200' },
+  architecture: { label: 'Architecture', color: 'text-indigo-700', bg: 'bg-indigo-50 border-indigo-200' },
+  workflows: { label: 'Workflows', color: 'text-violet-700', bg: 'bg-violet-50 border-violet-200' },
+  integrations: { label: 'Integrations', color: 'text-teal-700', bg: 'bg-teal-50 border-teal-200' },
+  security: { label: 'Security', color: 'text-red-700', bg: 'bg-red-50 border-red-200' },
 };
 
 const SECTION_ICONS: Record<string, any> = {
@@ -37,6 +42,9 @@ const SECTION_ICONS: Record<string, any> = {
   architecture_overview: Cpu, process_flow: GitBranch, data_design: Database,
   security_access: Shield, error_handling: AlertTriangle, observability: Activity,
   deployment_runtime: Server, api_specification: Code, method_details: ListChecks, configuration: Settings,
+  system_overview: Globe, system_architecture: Layers, tech_stack: Cpu,
+  codebase_structure: FolderTree, database_design: Database, api_documentation: Code,
+  core_workflows: Workflow, integrations_external: Link2, security_overview: Lock,
 };
 
 export default function TemplateEditPage({ params }: { params: Promise<{ id: string }> }) {

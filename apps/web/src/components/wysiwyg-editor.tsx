@@ -8,9 +8,11 @@ interface WysiwygEditorProps {
   content: string;
   onChange: (markdown: string) => void;
   className?: string;
+  externalUpdateKey?: number;
+  highlightChanges?: boolean;
 }
 
-export function WysiwygEditor({ content, onChange, className = '' }: WysiwygEditorProps) {
+export function WysiwygEditor({ content, onChange, className = '', externalUpdateKey = 0, highlightChanges = false }: WysiwygEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const toolbarRef = useRef<HTMLDivElement>(null);
   const [toolbarVisible, setToolbarVisible] = useState(false);
@@ -18,6 +20,8 @@ export function WysiwygEditor({ content, onChange, className = '' }: WysiwygEdit
   const suppressInputRef = useRef(false);
   const initializedRef = useRef(false);
   const contentRef = useRef(content);
+  const prevElementTextsRef = useRef<string[]>([]);
+  const lastUpdateKeyRef = useRef(externalUpdateKey);
 
   contentRef.current = content;
 
@@ -136,32 +140,50 @@ export function WysiwygEditor({ content, onChange, className = '' }: WysiwygEdit
       .trim();
   }, []);
 
-  // Set innerHTML once when content first becomes non-empty, or on external content reset (e.g. revision restore)
   useEffect(() => {
     if (!editorRef.current) return;
 
     if (!initializedRef.current && content && content.trim()) {
       initializedRef.current = true;
       suppressInputRef.current = true;
+      prevElementTextsRef.current = captureElementTexts(editorRef.current);
       editorRef.current.innerHTML = markdownToHtml(content);
+      prevElementTextsRef.current = captureElementTexts(editorRef.current);
       requestAnimationFrame(() => { suppressInputRef.current = false; });
       return;
     }
 
-    // Detect external content reset (revision restore): the content prop changed
-    // to something very different from what the editor currently holds
+    const isExternalUpdate = externalUpdateKey !== lastUpdateKeyRef.current;
+    lastUpdateKeyRef.current = externalUpdateKey;
+
     if (initializedRef.current && content && content.trim()) {
       const currentEditorMd = htmlToMarkdown(editorRef.current);
       const propNorm = content.trim().substring(0, 200);
       const editorNorm = currentEditorMd.trim().substring(0, 200);
+      const needsReRender = isExternalUpdate || (propNorm !== editorNorm && Math.abs(content.length - currentEditorMd.length) > content.length * 0.1);
 
-      if (propNorm !== editorNorm && Math.abs(content.length - currentEditorMd.length) > content.length * 0.3) {
+      if (needsReRender) {
+        const oldTexts = captureElementTexts(editorRef.current);
         suppressInputRef.current = true;
         editorRef.current.innerHTML = markdownToHtml(content);
+
+        if (highlightChanges && isExternalUpdate) {
+          requestAnimationFrame(() => {
+            if (editorRef.current) {
+              applyElementHighlights(editorRef.current, oldTexts);
+              const firstHighlighted = editorRef.current.querySelector('.ai-edit-highlight');
+              if (firstHighlighted) {
+                firstHighlighted.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }
+          });
+        }
+
+        prevElementTextsRef.current = captureElementTexts(editorRef.current);
         requestAnimationFrame(() => { suppressInputRef.current = false; });
       }
     }
-  }, [content, markdownToHtml, htmlToMarkdown]);
+  }, [content, externalUpdateKey, highlightChanges, markdownToHtml, htmlToMarkdown]);
 
   const handleInput = useCallback(() => {
     if (!editorRef.current || suppressInputRef.current) return;
@@ -306,6 +328,40 @@ export function WysiwygEditor({ content, onChange, className = '' }: WysiwygEdit
       />
     </div>
   );
+}
+
+function captureElementTexts(editor: HTMLElement): string[] {
+  return Array.from(editor.children).map((el) => (el.textContent || '').trim());
+}
+
+function applyElementHighlights(editor: HTMLElement, oldTexts: string[]): void {
+  const newElements = Array.from(editor.children);
+  if (newElements.length === 0) return;
+
+  let prefixMatch = 0;
+  const minLen = Math.min(oldTexts.length, newElements.length);
+  while (prefixMatch < minLen && (newElements[prefixMatch].textContent || '').trim() === oldTexts[prefixMatch]) {
+    prefixMatch++;
+  }
+
+  let suffixMatch = 0;
+  const maxSuffix = Math.min(oldTexts.length - prefixMatch, newElements.length - prefixMatch);
+  while (suffixMatch < maxSuffix) {
+    const oldIdx = oldTexts.length - 1 - suffixMatch;
+    const newIdx = newElements.length - 1 - suffixMatch;
+    if ((newElements[newIdx].textContent || '').trim() === oldTexts[oldIdx]) {
+      suffixMatch++;
+    } else {
+      break;
+    }
+  }
+
+  const changeStart = prefixMatch;
+  const changeEnd = newElements.length - suffixMatch;
+
+  for (let i = changeStart; i < changeEnd; i++) {
+    newElements[i].classList.add('ai-edit-highlight');
+  }
 }
 
 function escapeHtml(s: string): string {

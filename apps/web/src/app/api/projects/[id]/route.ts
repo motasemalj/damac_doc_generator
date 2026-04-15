@@ -52,6 +52,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       data: {
         name: body.name?.trim() || project.name,
         description: body.description?.trim() ?? project.description,
+        contextFileInstructions: body.contextFileInstructions !== undefined
+          ? (body.contextFileInstructions?.trim() || null)
+          : undefined,
       },
     });
 

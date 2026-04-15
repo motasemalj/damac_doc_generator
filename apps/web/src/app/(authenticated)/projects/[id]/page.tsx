@@ -20,7 +20,7 @@ import {
 import {
   Upload, FileText, ArrowLeft, Loader2, CheckCircle2,
   AlertCircle, File, Eye, Pencil, X, Trash2,
-  Clock, FolderUp, FileCog, Files,
+  Clock, FolderUp, FileCog, Files, Info,
 } from 'lucide-react';
 import { formatDate, formatBytes, formatDateTime, cn } from '@/lib/utils';
 
@@ -48,6 +48,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
   const [deletingSnapshotId, setDeletingSnapshotId] = useState<string | null>(null);
   const [contextFileDeleteId, setContextFileDeleteId] = useState<string | null>(null);
   const [deletingContextFileId, setDeletingContextFileId] = useState<string | null>(null);
+  const [contextFileInstructions, setContextFileInstructions] = useState('');
+  const [contextInstructionsLoaded, setContextInstructionsLoaded] = useState(false);
+  const [contextInstructionsSaved, setContextInstructionsSaved] = useState(false);
+  const contextInstructionsTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const [genPhase, setGenPhase] = useState<GenPhase>('idle');
   const [genTokenCount, setGenTokenCount] = useState(0);
@@ -67,6 +71,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       const data = await res.json();
       if (data.success) {
         setProject(data.data);
+        if (!contextInstructionsLoaded) {
+          setContextFileInstructions(data.data.contextFileInstructions || '');
+          setContextInstructionsLoaded(true);
+        }
         const snapshots = data.data.snapshots || [];
         if (snapshots.length === 0) {
           if (selectedSnapshot) setSelectedSnapshot('');
@@ -76,7 +84,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       }
     } catch { /* */ }
     finally { setLoading(false); }
-  }, [id, selectedSnapshot]);
+  }, [id, selectedSnapshot, contextInstructionsLoaded]);
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -203,6 +211,28 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
       setTimeout(() => setContextUploadProgress(0), 1000);
     }
   };
+
+  useEffect(() => {
+    if (!contextInstructionsLoaded) return;
+    if (contextInstructionsTimerRef.current) clearTimeout(contextInstructionsTimerRef.current);
+    contextInstructionsTimerRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/projects/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contextFileInstructions }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setContextInstructionsSaved(true);
+          setTimeout(() => setContextInstructionsSaved(false), 2000);
+        }
+      } catch { /* silent autosave */ }
+    }, 800);
+    return () => {
+      if (contextInstructionsTimerRef.current) clearTimeout(contextInstructionsTimerRef.current);
+    };
+  }, [contextFileInstructions, contextInstructionsLoaded, id]);
 
   const handleGenerate = async () => {
     if (!selectedSnapshot || !selectedTemplate) return;
@@ -453,10 +483,10 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                     <div>
                       <h3 className="text-sm font-medium flex items-center gap-2">
                         <Files className="h-4 w-4 text-violet-600" />
-                        Upload context files
+                        Context files
                       </h3>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Add supporting notes, markdown, configs, or source files to inform TDD generation.
+                        Upload API specs, database schemas, config files, requirements docs, or source code to provide the AI with authoritative reference material during generation. Each file is automatically classified and used to produce more accurate, data-driven documentation.
                       </p>
                     </div>
 
@@ -489,42 +519,94 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
                     {project.contextFiles?.length > 0 && (
                       <div className="space-y-2">
-                        {project.contextFiles.map((contextFile: any) => (
-                          <div
-                            key={contextFile.id}
-                            className={cn(
-                              'flex items-center gap-3 rounded-lg border px-3 py-2 transition-all duration-300',
-                              recentContextFileIds.includes(contextFile.id) && 'border-violet-300 bg-violet-50/50 shadow-sm',
-                            )}
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
-                              <FileText className="h-4 w-4 text-violet-600" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-medium truncate">{contextFile.originalFileName}</p>
-                                {recentContextFileIds.includes(contextFile.id) && (
-                                  <Badge variant="outline" className="text-[11px] text-violet-700 border-violet-200 bg-violet-100/70">New</Badge>
-                                )}
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                {formatBytes(contextFile.fileSizeBytes)} &middot; {formatDateTime(contextFile.createdAt)}
-                              </p>
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 text-xs text-red-600 hover:text-red-700"
-                              onClick={() => setContextFileDeleteId(contextFile.id)}
-                              disabled={deletingContextFileId === contextFile.id}
+                        {project.contextFiles.map((contextFile: any) => {
+                          const ext = (contextFile.originalFileName || '').split('.').pop()?.toLowerCase() || '';
+                          const base = (contextFile.originalFileName || '').toLowerCase();
+                          let fileTypeBadge = 'File';
+                          let badgeClass = 'text-gray-600 border-gray-200 bg-gray-50';
+                          if (base.includes('openapi') || base.includes('swagger')) {
+                            fileTypeBadge = 'API Spec'; badgeClass = 'text-amber-700 border-amber-200 bg-amber-50';
+                          } else if (ext === 'sql' || base.includes('schema') || base.includes('migration')) {
+                            fileTypeBadge = 'Schema'; badgeClass = 'text-blue-700 border-blue-200 bg-blue-50';
+                          } else if (ext === 'graphql' || ext === 'gql') {
+                            fileTypeBadge = 'GraphQL'; badgeClass = 'text-pink-700 border-pink-200 bg-pink-50';
+                          } else if (ext === 'proto') {
+                            fileTypeBadge = 'Protobuf'; badgeClass = 'text-indigo-700 border-indigo-200 bg-indigo-50';
+                          } else if (['ts', 'tsx', 'js', 'jsx', 'py', 'java', 'go', 'rs', 'rb', 'php', 'cs', 'kt', 'swift'].includes(ext)) {
+                            fileTypeBadge = 'Source'; badgeClass = 'text-emerald-700 border-emerald-200 bg-emerald-50';
+                          } else if (base.includes('docker')) {
+                            fileTypeBadge = 'Docker'; badgeClass = 'text-sky-700 border-sky-200 bg-sky-50';
+                          } else if (['package.json', 'cargo.toml', 'go.mod', 'requirements.txt', 'pom.xml'].some(n => base.includes(n)) || base.includes('build.gradle')) {
+                            fileTypeBadge = 'Dependencies'; badgeClass = 'text-orange-700 border-orange-200 bg-orange-50';
+                          } else if (ext === 'env' || base.includes('.env.')) {
+                            fileTypeBadge = 'Env Config'; badgeClass = 'text-yellow-700 border-yellow-200 bg-yellow-50';
+                          } else if (['md', 'mdx', 'txt'].includes(ext)) {
+                            fileTypeBadge = 'Docs'; badgeClass = 'text-violet-700 border-violet-200 bg-violet-50';
+                          } else if (['json', 'yaml', 'yml', 'toml', 'ini', 'cfg'].includes(ext)) {
+                            fileTypeBadge = 'Config'; badgeClass = 'text-teal-700 border-teal-200 bg-teal-50';
+                          }
+
+                          return (
+                            <div
+                              key={contextFile.id}
+                              className={cn(
+                                'flex items-center gap-3 rounded-lg border px-3 py-2 transition-all duration-300',
+                                recentContextFileIds.includes(contextFile.id) && 'border-violet-300 bg-violet-50/50 shadow-sm',
+                              )}
                             >
-                              {deletingContextFileId === contextFile.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
-                              Delete
-                            </Button>
-                          </div>
-                        ))}
+                              <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center">
+                                <FileText className="h-4 w-4 text-violet-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-sm font-medium truncate">{contextFile.originalFileName}</p>
+                                  <Badge variant="outline" className={cn('text-[10px] shrink-0', badgeClass)}>{fileTypeBadge}</Badge>
+                                  {recentContextFileIds.includes(contextFile.id) && (
+                                    <Badge variant="outline" className="text-[11px] text-violet-700 border-violet-200 bg-violet-100/70">New</Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatBytes(contextFile.fileSizeBytes)} &middot; {formatDateTime(contextFile.createdAt)}
+                                </p>
+                              </div>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 text-xs text-red-600 hover:text-red-700"
+                                onClick={() => setContextFileDeleteId(contextFile.id)}
+                                disabled={deletingContextFileId === contextFile.id}
+                              >
+                                {deletingContextFileId === contextFile.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
+                                Delete
+                              </Button>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
+
+                    <div className="space-y-2 pt-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs flex items-center gap-1.5">
+                          <Info className="h-3 w-3 text-muted-foreground" />
+                          Context file instructions (optional)
+                        </Label>
+                        {contextInstructionsSaved && (
+                          <span className="text-xs text-emerald-600 flex items-center gap-1">
+                            <CheckCircle2 className="h-3 w-3" /> Saved
+                          </span>
+                        )}
+                      </div>
+                      <Textarea
+                        value={contextFileInstructions}
+                        onChange={(e) => setContextFileInstructions(e.target.value)}
+                        rows={3}
+                        className="text-sm resize-none"
+                      />
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">
+                        These instructions are sent alongside your context files during TDD generation, guiding the AI on how to use each file. Leave blank for automatic classification.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </CardContent>

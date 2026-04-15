@@ -12,6 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import { AiEditPanel } from '@/components/ai-edit-panel';
 import {
   ArrowLeft, Save, Eye, Download, Loader2, Clock,
   History, CheckCircle2, AlertCircle, FileEdit,
@@ -35,6 +36,9 @@ export default function TddEditPage({ params }: { params: Promise<{ tddId: strin
   const [revisions, setRevisions] = useState<any[]>([]);
   const [showRevisions, setShowRevisions] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [aiHighlightActive, setAiHighlightActive] = useState(false);
+  const [editorUpdateKey, setEditorUpdateKey] = useState(0);
+  const highlightTimerRef = useRef<NodeJS.Timeout | null>(null);
   const autosaveTimer = useRef<NodeJS.Timeout | null>(null);
   const previewContent = useDeferredValue(content);
 
@@ -95,6 +99,37 @@ export default function TddEditPage({ params }: { params: Promise<{ tddId: strin
     setContent(value);
     setDirty(true);
   };
+
+  const handleAiContentUpdated = useCallback((newContent: string) => {
+    setAiHighlightActive(true);
+    setEditorUpdateKey((k) => k + 1);
+    setContent(newContent);
+    setDirty(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+
+    if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+    highlightTimerRef.current = setTimeout(() => {
+      setAiHighlightActive(false);
+    }, 7000);
+
+    fetch(`/api/tdds/${tddId}/revisions`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setRevisions(data.data);
+      })
+      .catch(() => {});
+  }, [tddId]);
+
+  const handleAiUndo = useCallback(() => {
+    if (revisions.length > 0) {
+      setAiHighlightActive(false);
+      if (highlightTimerRef.current) clearTimeout(highlightTimerRef.current);
+      setEditorUpdateKey((k) => k + 1);
+      setContent(revisions[0].markdownContent);
+      setDirty(true);
+    }
+  }, [revisions]);
 
   const handleExportPdf = async () => {
     if (dirty) await save(false);
@@ -220,6 +255,14 @@ export default function TddEditPage({ params }: { params: Promise<{ tddId: strin
         </div>
       </div>
 
+      {/* AI Edit Panel */}
+      <AiEditPanel
+        tddId={tddId}
+        markdownContent={content}
+        onContentUpdated={handleAiContentUpdated}
+        onUndoRequested={handleAiUndo}
+      />
+
       {/* Editor Area */}
       <div className="flex gap-4 flex-1 min-h-0">
         {/* Document (WYSIWYG) Mode */}
@@ -228,6 +271,8 @@ export default function TddEditPage({ params }: { params: Promise<{ tddId: strin
             <WysiwygEditor
               content={content}
               onChange={handleContentChange}
+              externalUpdateKey={editorUpdateKey}
+              highlightChanges={aiHighlightActive}
             />
           </div>
         )}
@@ -238,7 +283,10 @@ export default function TddEditPage({ params }: { params: Promise<{ tddId: strin
             <textarea
               value={content}
               onChange={(e) => handleContentChange(e.target.value)}
-              className="w-full h-full bg-slate-900 text-slate-100 font-mono text-sm p-6 rounded-xl border-0 resize-none focus:outline-none focus:ring-2 focus:ring-brand-accent scrollbar-thin leading-relaxed"
+              className={cn(
+                'w-full h-full bg-slate-900 text-slate-100 font-mono text-sm p-6 rounded-xl border-2 border-transparent resize-none focus:outline-none focus:ring-2 focus:ring-brand-accent scrollbar-thin leading-relaxed',
+                aiHighlightActive && 'ai-edit-textarea-highlight',
+              )}
               spellCheck={false}
               placeholder="Write your Markdown here..."
             />
@@ -248,7 +296,7 @@ export default function TddEditPage({ params }: { params: Promise<{ tddId: strin
         {/* Preview */}
         {(viewMode === 'preview' || viewMode === 'split') && (
           <div className={cn('flex-1 min-w-0 overflow-y-auto bg-white border rounded-xl p-8 scrollbar-thin', viewMode === 'split' && 'max-w-[50%]')}>
-            <MarkdownRenderer content={previewContent} />
+            <MarkdownRenderer content={previewContent} highlightChanges={aiHighlightActive} />
           </div>
         )}
       </div>

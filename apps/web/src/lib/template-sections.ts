@@ -4,7 +4,7 @@ export interface TemplateSection {
   description: string;
   enabled: boolean;
   order: number;
-  category: 'cover' | 'overview' | 'specification' | 'technical' | 'api' | 'methods' | 'config';
+  category: 'cover' | 'overview' | 'specification' | 'technical' | 'api' | 'methods' | 'config' | 'architecture' | 'workflows' | 'integrations' | 'security';
   hasDiagram: boolean;
   hasTable: boolean;
 }
@@ -25,7 +25,16 @@ const AVAILABLE_TEMPLATE_SECTIONS: TemplateSection[] = [
   { id: 'deployment_runtime', title: 'Deployment & Runtime', description: 'Cross-cutting build process, runtime dependencies, environment patterns, and deployment diagram.', enabled: true, order: 12, category: 'technical', hasDiagram: true, hasTable: false },
   { id: 'api_specification', title: 'API Specification', description: 'Complete specification of all endpoints with request/response details and samples.', enabled: true, order: 13, category: 'api', hasDiagram: false, hasTable: true },
   { id: 'method_details', title: 'Method Details', description: 'Comprehensive inventory of all methods and functions in the codebase with signatures, behavior, and cross-cutting patterns.', enabled: true, order: 14, category: 'methods', hasDiagram: false, hasTable: true },
-  { id: 'configuration', title: 'Configuration & Environment', description: 'Environment variables, runtime settings, database config, external services, feature flags, secrets, telemetry, and build signals.', enabled: true, order: 15, category: 'config', hasDiagram: false, hasTable: true },
+  { id: 'configuration', title: 'Configuration & Environment', description: 'Environment variables, config files, and secrets handling.', enabled: true, order: 15, category: 'config', hasDiagram: false, hasTable: true },
+  { id: 'system_overview', title: 'System Overview', description: 'System name, purpose, and users derived from the codebase.', enabled: true, order: 16, category: 'overview', hasDiagram: false, hasTable: true },
+  { id: 'system_architecture', title: 'System Architecture', description: 'High-level flow and main components (frontend, backend, database, external integrations).', enabled: true, order: 17, category: 'architecture', hasDiagram: true, hasTable: false },
+  { id: 'tech_stack', title: 'Tech Stack', description: 'Backend, frontend, database, infrastructure, and other tools as found in dependency files.', enabled: true, order: 18, category: 'technical', hasDiagram: false, hasTable: true },
+  { id: 'codebase_structure', title: 'Codebase Structure', description: 'Repository layout, key folders/modules, and component descriptions.', enabled: true, order: 19, category: 'technical', hasDiagram: false, hasTable: true },
+  { id: 'database_design', title: 'Database Design', description: 'Database type, key tables/collections, and field relationships from schema definitions.', enabled: true, order: 20, category: 'technical', hasDiagram: true, hasTable: true },
+  { id: 'api_documentation', title: 'API Documentation', description: 'Key endpoints with method, request, response, and auth requirements.', enabled: true, order: 21, category: 'api', hasDiagram: false, hasTable: true },
+  { id: 'core_workflows', title: 'Core Workflows', description: 'User actions and system responses traced step-by-step through actual code paths.', enabled: true, order: 22, category: 'workflows', hasDiagram: true, hasTable: false },
+  { id: 'integrations_external', title: 'Integrations & External Services', description: 'Third-party services, their purpose, usage, and error/failure handling.', enabled: true, order: 23, category: 'integrations', hasDiagram: false, hasTable: true },
+  { id: 'security_overview', title: 'Security', description: 'Authentication and authorization mechanisms as implemented in the codebase.', enabled: true, order: 24, category: 'security', hasDiagram: false, hasTable: false },
 ];
 
 const SECTION_BY_ID = new Map(

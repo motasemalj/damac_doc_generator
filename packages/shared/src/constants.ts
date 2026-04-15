@@ -74,5 +74,9 @@ export const DAMAC_BRAND = {
   },
 } as const;
 
-export const DEFAULT_OPENAI_MODEL = 'gpt-5.4-pro';
+export const DEFAULT_OPENAI_MODEL = 'gpt-5.4';
 export const OPENAI_MAX_TOKENS = 128000;
+
+export const AI_EDIT_MAX_FILES = 5;
+export const AI_EDIT_MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB per file
+export const AI_EDIT_MAX_INSTRUCTION_LENGTH = 4000;

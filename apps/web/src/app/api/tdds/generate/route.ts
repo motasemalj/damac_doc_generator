@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
     });
     const codebaseSummary = [
       await getSnapshotSummaryPromptText(snapshot.storagePath),
-      buildContextFilesPromptText(contextFiles),
+      buildContextFilesPromptText(contextFiles, project.contextFileInstructions),
     ].filter(Boolean).join('\n\n');
 
     const vars: Record<string, string> = { ...(variables || {}) };
