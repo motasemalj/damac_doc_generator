@@ -1,52 +1,35 @@
-export interface TemplateSection {
-  id: string;
-  title: string;
-  description: string;
-  enabled: boolean;
-  order: number;
-  category: 'cover' | 'overview' | 'specification' | 'technical' | 'api' | 'methods' | 'config' | 'architecture' | 'workflows' | 'integrations' | 'security';
-  hasDiagram: boolean;
-  hasTable: boolean;
-}
-
-export const SECTION_PROMPT_MAP: Record<string, string> = {
-  cover_page: `Cover page with a SINGLE H1 title in this exact pattern: "<System Name> - Technical Design Documentation". Do NOT output a standalone heading that is only "Technical Design Documentation".
+export const SECTION_PROMPT_MAP = {
+    cover_page: `Cover page with a SINGLE H1 title in this exact pattern: "<System Name> - Technical Design Documentation". Do NOT output a standalone heading that is only "Technical Design Documentation".
 Write the text <!-- DAMAC_LOGO --> on its own line where the logo should appear. Do NOT use any image markdown or URLs for the logo — only that exact HTML comment placeholder.
 Table of Contents`,
-
-  executive_summary: `Executive Summary
+    executive_summary: `Executive Summary
 - 3–5 paragraphs:
   - What the system does, why it exists, who uses it, and the key outcomes it enables.
   - How it fits into a broader business process.
   - How processing/operations are organized at a high level (e.g., run/batch model, workflows, governance).
 - Keep it non-technical and business-readable.
 - No deep technical details here.`,
-
-  purpose_introduction: `1. Purpose & Introduction
+    purpose_introduction: `1. Purpose & Introduction
 1.1 Purpose
 - 2–3 paragraphs describing why this document exists and how teams use it (onboarding, change impact, operations).
 1.2 Introduction
 - 2–4 paragraphs describing scope, primary actors, boundaries, and high-level workflows.
 - Keep language accessible to non-technical readers; avoid naming internal classes/packages.`,
-
-  system_specification: `2. System Specification
+    system_specification: `2. System Specification
 - 1–2 paragraphs positioning the specification (capabilities + quality characteristics) and describing any consistent API/response conventions seen in code.`,
-
-  functional_requirements: `2.1 Functional Requirements
+    functional_requirements: `2.1 Functional Requirements
 - Derive from code behavior. List FR1, FR2, FR3… Each requirement must include:
   - Short title
   - A business-readable paragraph describing capability and outcome.
   - Mention key constraints plainly (permissions, required inputs, lifecycle, status transitions) without deep implementation detail.
   - Use bullets only when helpful; always lead with a paragraph.`,
-
-  nonfunctional_requirements: `2.2 Nonfunctional Requirements
+    nonfunctional_requirements: `2.2 Nonfunctional Requirements
 - Include only categories demonstrated by code/config/patterns: performance, reliability, security, scalability, maintainability, observability, privacy/compliance (only if truly indicated).
 - List NFR1, NFR2, NFR3… Each requirement must begin with its NFR identifier.
 - For each NFR:
   - A clear statement + short explanation of how the system supports it (plain language first, then specifics).
   - No "not found" statements.`,
-
-  architecture_overview: `3. Technical Approach
+    architecture_overview: `3. Technical Approach
 - 1–2 paragraphs describing how the system is constructed and how the design supports maintainability and operations.
 - Identify every major component, module, and service in the system. Each major component becomes its own numbered subsection under Section 3.
 
@@ -88,8 +71,7 @@ IMPORTANT: For EACH major component found in the codebase, create a dedicated su
 - Do not include "Evidence"; keep steps grounded in code.
 
 Repeat this pattern (3.X with four sub-sections) for EVERY major component in the system. After all per-component subsections, cross-cutting technical concerns follow in subsequent subsections (continuing the Section 3 numbering).`,
-
-  process_flow: `End-to-End Process Flows (continue numbering as the next subsection under Section 3, after all per-component subsections above)
+    process_flow: `End-to-End Process Flows (continue numbering as the next subsection under Section 3, after all per-component subsections above)
 - 2–4 paragraphs describing the major end-to-end flows that span across multiple components in the system (business-first, then technical).
 - Mermaid sequence/activity diagram(s) showing all participating components and their interactions for each major flow.
 - Caption + explanatory paragraph per diagram.
@@ -97,8 +79,7 @@ Repeat this pattern (3.X with four sub-sections) for EVERY major component in th
   - Numbered steps tracing across all involved components from initiation to completion.
   - Follow with a paragraph covering validations, failure modes, side effects, and state transitions in professional language.
   - Do not include "Evidence"; keep steps grounded in code.`,
-
-  data_design: `Data Design (continue numbering under Section 3)
+    data_design: `Data Design (continue numbering under Section 3)
 - 2–4 paragraphs describing:
   - Persistence approach and technologies
   - Core domain entities and their relationships
@@ -107,40 +88,35 @@ Repeat this pattern (3.X with four sub-sections) for EVERY major component in th
 - Mermaid ER diagram
 - Caption + explanatory paragraph
 - DB object inventory table (name + repository-grounded description).`,
-
-  security_access: `Security & Access Control (continue numbering under Section 3)
+    security_access: `Security & Access Control (continue numbering under Section 3)
 - 2–4 paragraphs covering:
   - Authentication (how identity is established) if present
   - Authorization (how permissions are enforced) if present
   - Validation and defensive checks
   - Secrets/config handling patterns
 - Avoid claiming RBAC/SSO/etc. unless clearly implemented.`,
-
-  error_handling: `Error Handling & Resilience (continue numbering under Section 3)
+    error_handling: `Error Handling & Resilience (continue numbering under Section 3)
 - 2–4 paragraphs covering:
   - Validation vs business rule failures vs runtime errors
   - Retries/timeouts/idempotency/DLQ/compensation where present
   - Async execution failure behavior and recoverability
   - Circuit breaker, bulkhead, or graceful degradation patterns if present
 - Keep it operationally meaningful.`,
-
-  observability: `Observability (continue numbering under Section 3)
+    observability: `Observability (continue numbering under Section 3)
 - 2–4 paragraphs covering:
   - Logging practices and log levels
   - Tracing/metrics/health endpoints if present
   - Correlation identifiers and audit logs if present
   - Dashboard, alerting, and operational runbook signals if present
 - Focus on how operators troubleshoot.`,
-
-  deployment_runtime: `Deployment & Runtime (continue numbering under Section 3)
+    deployment_runtime: `Deployment & Runtime (continue numbering under Section 3)
 - 2–4 paragraphs covering:
   - Build/run approach (Maven/Gradle, Docker, K8s manifests, CI/CD signals) if present
   - Runtime dependencies (DBs, queues, file mounts, external services)
   - Environment separation patterns
 - Mermaid deployment diagram
 - Caption + explanatory paragraph`,
-
-  api_specification: `4. API Specification
+    api_specification: `4. API Specification
 - Start with 2–3 paragraphs describing:
   - API grouping and conventions
   - Versioning/base paths if present
@@ -176,8 +152,7 @@ Table:
 - 1 paragraph describing what the sample illustrates.
 - Provide samples only if grounded in tests/schemas/types; keep minimal and readable.
 - If exact examples don't exist, generate conservative examples consistent with DTO/schema shapes WITHOUT labeling them as "not found".`,
-
-  method_details: `5. Method Details
+    method_details: `5. Method Details
 - 1–2 paragraphs providing an overview of the functions and methods found in the codebase — approximate count, naming conventions, and general organizational patterns.
 
 5.X <functionName / methodName> (<file path>)
@@ -192,8 +167,7 @@ Table:
   - **File Location**: The file path where this function is defined.
 
 No function or method should be omitted. If the codebase contains no functions or methods, write a single paragraph stating: "No methods or functions were identified in the analyzed codebase."`,
-
-  configuration: `Configuration & Environment
+    configuration: `Configuration & Environment
 - 1–2 introductory paragraphs describing the overarching configuration strategy and how configuration controls runtime behavior across environments.
 
 X.1 Environment Variables
@@ -215,8 +189,7 @@ X.3 Secrets
 - Describe the mechanism used (e.g., environment variables, vault, sealed secrets, encrypted config) based on what the code actually shows.
 - Do NOT reveal actual secret values — describe the configuration shape and management approach only.
 - Do NOT assume secret management tools unless they are referenced in the codebase.`,
-
-  system_overview: `System Overview
+    system_overview: `System Overview
 - Derive ALL content strictly from what is observable in the codebase (README, package.json, config files, code structure, comments, and naming conventions).
 - Do NOT invent or assume system names, purposes, or user roles that are not evidenced in the repository.
 
@@ -235,8 +208,7 @@ Users
 - Derive user types from authentication logic, role definitions, UI flows, API consumers, or README descriptions.
 - If user roles are not explicitly defined in the codebase, describe the actors implied by the system's interfaces (e.g., "end users accessing the web UI", "API consumers", "administrators with access to admin routes").
 - Do NOT fabricate user personas or roles that have no basis in the code.`,
-
-  system_architecture: `System Architecture
+    system_architecture: `System Architecture
 - Derive ALL content from the actual codebase structure, dependencies, configuration files, and import patterns. Do NOT assume architectural patterns that are not evidenced.
 - 1–2 introductory paragraphs summarizing the overall architectural style and how the system is organized.
 
@@ -262,8 +234,7 @@ X.2.3 Database
 X.2.4 External Integrations
 - 1–2 paragraphs listing external services the system connects to, derived from HTTP client calls, SDK imports, API key references, or integration configuration visible in the code.
 - Do NOT assume integrations that are not referenced in the codebase.`,
-
-  tech_stack: `Tech Stack
+    tech_stack: `Tech Stack
 - List ONLY technologies that are actually present in the codebase — referenced in dependency files (package.json, requirements.txt, pom.xml, go.mod, Cargo.toml, Gemfile, etc.), import statements, configuration files, or Dockerfiles.
 - Do NOT list technologies that are merely common in the ecosystem but not evidenced in this specific repository.
 - 1–2 introductory paragraphs summarizing the technology choices and their sources (dependency files, config, etc.).
@@ -284,8 +255,7 @@ X.4 Infrastructure
 X.5 Other Tools & Services
 - List any additional tools, services, or libraries that don't fit the categories above (e.g., testing frameworks, linters, code generation tools, monitoring SDKs).
 - Include version numbers where available from dependency files.`,
-
-  codebase_structure: `Codebase Structure
+    codebase_structure: `Codebase Structure
 - Derive ALL content from the actual repository file and folder layout. Do NOT describe hypothetical or recommended structures.
 
 X.1 Repository
@@ -303,8 +273,7 @@ X.3 Component Descriptions
 X.3.N <Component/Package Name>
 - 1–2 paragraphs describing its role based on its actual contents (entry points, exports, README, or naming conventions).
 - Do NOT describe what a component "should" contain — describe only what it does contain.`,
-
-  database_design: `Database Design
+    database_design: `Database Design
 - Derive ALL content from actual schema files, migration scripts, ORM model definitions, or SQL files present in the codebase. Do NOT infer tables, fields, or relationships that are not defined.
 
 Database Type
@@ -321,8 +290,7 @@ Important Fields & Relationships
 - Include a Mermaid ER diagram showing the relationships ONLY for entities that are actually defined in the codebase.
 - Caption + explanatory paragraph.
 - Do NOT fabricate fields or relationships that are not present in the schema or model definitions.`,
-
-  api_documentation: `API Documentation
+    api_documentation: `API Documentation
 - Document ONLY endpoints that are actually defined in the codebase (route definitions, controller methods, handler functions). Do NOT invent endpoints.
 - If no API endpoints exist in the codebase, write a single paragraph stating that no API routes were identified.
 - 1–2 introductory paragraphs describing the API structure, base paths, and any common conventions (response envelope, error format, versioning) observed in the code.
@@ -355,8 +323,7 @@ X.2.N.2 Response
 
 X.2.N.3 Auth Requirements
 - State the authentication/authorization requirements based on middleware, decorators, or guard logic applied to the route. If no auth is applied, state that plainly.`,
-
-  core_workflows: `Core Workflows
+    core_workflows: `Core Workflows
 - Describe ONLY workflows that can be traced through the actual code paths. Do NOT invent user journeys or system behaviors that are not implemented.
 - Each workflow should be a sequence of concrete steps that map to actual functions, handlers, or service calls in the codebase.
 
@@ -374,8 +341,7 @@ X.2.N.3 Auth Requirements
 
 - Include Mermaid sequence diagrams for complex workflows that span multiple components.
 - Caption + explanatory paragraph per diagram.`,
-
-  integrations_external: `Integrations & External Services
+    integrations_external: `Integrations & External Services
 - List ONLY services that are actually called, imported, or configured in the codebase. Do NOT assume integrations based on the type of application.
 - If no external integrations exist, write a single paragraph noting that the system operates independently based on the analyzed codebase.
 - 1–2 introductory paragraphs summarizing the external dependencies and integration approach.
@@ -404,8 +370,7 @@ X.3.N <Service Name> — Error Handling
   - Try/catch blocks, retry logic, timeout configuration, fallback behavior
   - How failures propagate (thrown exceptions, error responses, logged warnings)
 - If no explicit error handling exists for this integration, state that plainly rather than describing what "should" exist.`,
-
-  security_overview: `Security
+    security_overview: `Security
 - Describe ONLY security measures that are actually implemented in the codebase. Do NOT claim compliance with standards, frameworks, or practices that are not evidenced in the code.
 
 Authentication
@@ -421,7 +386,6 @@ Authorization
 - Do NOT claim RBAC, ABAC, OAuth2, SSO, or any other security pattern unless the implementation is clearly present in the codebase.
 - Do NOT list generic security best practices or theoretical recommendations.`,
 };
-
 export const PREAMBLE_PROMPT = `Generate a professional, publication-quality Technical Design Document (TDD) for the target system using ONLY the content present in this repository's codebase.
 
 NON-NEGOTIABLE RULES (NO INVENTION — ZERO HALLUCINATION TOLERANCE)
@@ -456,7 +420,6 @@ DIAGRAMS (MERMAID) + FIGURES
   1) Sequential figure label and caption directly below it: "Figure X. …"
   2) A short paragraph explaining what the figure conveys and why it matters operationally.
 - Number figures sequentially across the entire document (Figure 1, Figure 2, …).`;
-
 export const QUALITY_GATES_PROMPT = `FINAL QUALITY GATES
 - No heading is empty or only a list/table.
 - No "This section/subsection/endpoint/diagram…" phrasing anywhere.
@@ -474,56 +437,49 @@ export const QUALITY_GATES_PROMPT = `FINAL QUALITY GATES
 - Core Workflows trace ONLY through actual code paths — no theoretical user journeys.
 - Integrations list ONLY services with actual SDK imports, API calls, or configuration references.
 - Security describes ONLY mechanisms with actual implementation code — no claimed compliance without evidence.`;
-
-export function getDefaultSections(): TemplateSection[] {
-  return [
-    { id: 'cover_page', title: 'Cover Page & Table of Contents', description: 'Title page with system name, DAMAC logo, and a structured table of contents.', enabled: true, order: 0, category: 'cover', hasDiagram: false, hasTable: false },
-    { id: 'executive_summary', title: 'Executive Summary', description: 'Non-technical overview of what the system does, who uses it, and the outcomes it enables.', enabled: true, order: 1, category: 'overview', hasDiagram: false, hasTable: false },
-    { id: 'purpose_introduction', title: 'Purpose & Introduction', description: 'Why this document exists, scope, primary actors, and high-level workflows.', enabled: true, order: 2, category: 'overview', hasDiagram: false, hasTable: false },
-    { id: 'system_specification', title: 'System Specification', description: 'Capabilities overview and API conventions observed in the codebase.', enabled: true, order: 3, category: 'specification', hasDiagram: false, hasTable: false },
-    { id: 'functional_requirements', title: 'Functional Requirements', description: 'Business-readable requirements derived from code behavior (FR1, FR2, ...).', enabled: true, order: 4, category: 'specification', hasDiagram: false, hasTable: false },
-    { id: 'nonfunctional_requirements', title: 'Non-functional Requirements', description: 'Performance, reliability, security, and other quality attributes demonstrated by code.', enabled: true, order: 5, category: 'specification', hasDiagram: false, hasTable: false },
-    { id: 'architecture_overview', title: 'Technical Approach — Per-Component Detail', description: 'Each major system component gets a dedicated subsection (3.1, 3.2, …) with Architecture Overview, Process Flow, High-Level Flow Overview, and Detailed Step-by-Step Flow.', enabled: true, order: 6, category: 'technical', hasDiagram: true, hasTable: false },
-    { id: 'process_flow', title: 'End-to-End Process Flows', description: 'Cross-cutting end-to-end flows spanning multiple components, with sequence diagrams and step-by-step traces.', enabled: true, order: 7, category: 'technical', hasDiagram: true, hasTable: false },
-    { id: 'data_design', title: 'Data Design', description: 'Cross-cutting persistence approach, entity relationships, ER diagram, and DB object inventory.', enabled: true, order: 8, category: 'technical', hasDiagram: true, hasTable: true },
-    { id: 'security_access', title: 'Security & Access Control', description: 'Cross-cutting authentication, authorization, validation, and secrets handling patterns.', enabled: true, order: 9, category: 'technical', hasDiagram: false, hasTable: false },
-    { id: 'error_handling', title: 'Error Handling & Resilience', description: 'Cross-cutting error strategies, retries, failure recovery, and operational resilience.', enabled: true, order: 10, category: 'technical', hasDiagram: false, hasTable: false },
-    { id: 'observability', title: 'Observability', description: 'Cross-cutting logging, metrics, health endpoints, and troubleshooting approaches.', enabled: true, order: 11, category: 'technical', hasDiagram: false, hasTable: false },
-    { id: 'deployment_runtime', title: 'Deployment & Runtime', description: 'Cross-cutting build process, runtime dependencies, environment patterns, and deployment diagram.', enabled: true, order: 12, category: 'technical', hasDiagram: true, hasTable: false },
-    { id: 'api_specification', title: 'API Specification', description: 'Complete specification of all endpoints with request/response details and samples.', enabled: true, order: 13, category: 'api', hasDiagram: false, hasTable: true },
-    { id: 'method_details', title: 'Method Details', description: 'Comprehensive inventory of all methods and functions in the codebase with signatures, behavior, and cross-cutting patterns.', enabled: true, order: 14, category: 'methods', hasDiagram: false, hasTable: true },
-    { id: 'configuration', title: 'Configuration & Environment', description: 'Environment variables, config files, and secrets handling.', enabled: true, order: 15, category: 'config', hasDiagram: false, hasTable: true },
-    { id: 'system_overview', title: 'System Overview', description: 'System name, purpose, and users derived from the codebase.', enabled: true, order: 16, category: 'overview', hasDiagram: false, hasTable: true },
-    { id: 'system_architecture', title: 'System Architecture', description: 'High-level flow and main components (frontend, backend, database, external integrations).', enabled: true, order: 17, category: 'architecture', hasDiagram: true, hasTable: false },
-    { id: 'tech_stack', title: 'Tech Stack', description: 'Backend, frontend, database, infrastructure, and other tools as found in dependency files.', enabled: true, order: 18, category: 'technical', hasDiagram: false, hasTable: true },
-    { id: 'codebase_structure', title: 'Codebase Structure', description: 'Repository layout, key folders/modules, and component descriptions.', enabled: true, order: 19, category: 'technical', hasDiagram: false, hasTable: true },
-    { id: 'database_design', title: 'Database Design', description: 'Database type, key tables/collections, and field relationships from schema definitions.', enabled: true, order: 20, category: 'technical', hasDiagram: true, hasTable: true },
-    { id: 'api_documentation', title: 'API Documentation', description: 'Key endpoints with method, request, response, and auth requirements.', enabled: true, order: 21, category: 'api', hasDiagram: false, hasTable: true },
-    { id: 'core_workflows', title: 'Core Workflows', description: 'User actions and system responses traced step-by-step through actual code paths.', enabled: true, order: 22, category: 'workflows', hasDiagram: true, hasTable: false },
-    { id: 'integrations_external', title: 'Integrations & External Services', description: 'Third-party services, their purpose, usage, and error/failure handling.', enabled: true, order: 23, category: 'integrations', hasDiagram: false, hasTable: true },
-    { id: 'security_overview', title: 'Security', description: 'Authentication and authorization mechanisms as implemented in the codebase.', enabled: true, order: 24, category: 'security', hasDiagram: false, hasTable: false },
-  ];
+export function getDefaultSections() {
+    return [
+        { id: 'cover_page', title: 'Cover Page & Table of Contents', description: 'Title page with system name, DAMAC logo, and a structured table of contents.', enabled: true, order: 0, category: 'cover', hasDiagram: false, hasTable: false },
+        { id: 'executive_summary', title: 'Executive Summary', description: 'Non-technical overview of what the system does, who uses it, and the outcomes it enables.', enabled: true, order: 1, category: 'overview', hasDiagram: false, hasTable: false },
+        { id: 'purpose_introduction', title: 'Purpose & Introduction', description: 'Why this document exists, scope, primary actors, and high-level workflows.', enabled: true, order: 2, category: 'overview', hasDiagram: false, hasTable: false },
+        { id: 'system_specification', title: 'System Specification', description: 'Capabilities overview and API conventions observed in the codebase.', enabled: true, order: 3, category: 'specification', hasDiagram: false, hasTable: false },
+        { id: 'functional_requirements', title: 'Functional Requirements', description: 'Business-readable requirements derived from code behavior (FR1, FR2, ...).', enabled: true, order: 4, category: 'specification', hasDiagram: false, hasTable: false },
+        { id: 'nonfunctional_requirements', title: 'Non-functional Requirements', description: 'Performance, reliability, security, and other quality attributes demonstrated by code.', enabled: true, order: 5, category: 'specification', hasDiagram: false, hasTable: false },
+        { id: 'architecture_overview', title: 'Technical Approach — Per-Component Detail', description: 'Each major system component gets a dedicated subsection (3.1, 3.2, …) with Architecture Overview, Process Flow, High-Level Flow Overview, and Detailed Step-by-Step Flow.', enabled: true, order: 6, category: 'technical', hasDiagram: true, hasTable: false },
+        { id: 'process_flow', title: 'End-to-End Process Flows', description: 'Cross-cutting end-to-end flows spanning multiple components, with sequence diagrams and step-by-step traces.', enabled: true, order: 7, category: 'technical', hasDiagram: true, hasTable: false },
+        { id: 'data_design', title: 'Data Design', description: 'Cross-cutting persistence approach, entity relationships, ER diagram, and DB object inventory.', enabled: true, order: 8, category: 'technical', hasDiagram: true, hasTable: true },
+        { id: 'security_access', title: 'Security & Access Control', description: 'Cross-cutting authentication, authorization, validation, and secrets handling patterns.', enabled: true, order: 9, category: 'technical', hasDiagram: false, hasTable: false },
+        { id: 'error_handling', title: 'Error Handling & Resilience', description: 'Cross-cutting error strategies, retries, failure recovery, and operational resilience.', enabled: true, order: 10, category: 'technical', hasDiagram: false, hasTable: false },
+        { id: 'observability', title: 'Observability', description: 'Cross-cutting logging, metrics, health endpoints, and troubleshooting approaches.', enabled: true, order: 11, category: 'technical', hasDiagram: false, hasTable: false },
+        { id: 'deployment_runtime', title: 'Deployment & Runtime', description: 'Cross-cutting build process, runtime dependencies, environment patterns, and deployment diagram.', enabled: true, order: 12, category: 'technical', hasDiagram: true, hasTable: false },
+        { id: 'api_specification', title: 'API Specification', description: 'Complete specification of all endpoints with request/response details and samples.', enabled: true, order: 13, category: 'api', hasDiagram: false, hasTable: true },
+        { id: 'method_details', title: 'Method Details', description: 'Comprehensive inventory of all methods and functions in the codebase with signatures, behavior, and cross-cutting patterns.', enabled: true, order: 14, category: 'methods', hasDiagram: false, hasTable: true },
+        { id: 'configuration', title: 'Configuration & Environment', description: 'Environment variables, config files, and secrets handling.', enabled: true, order: 15, category: 'config', hasDiagram: false, hasTable: true },
+        { id: 'system_overview', title: 'System Overview', description: 'System name, purpose, and users derived from the codebase.', enabled: true, order: 16, category: 'overview', hasDiagram: false, hasTable: true },
+        { id: 'system_architecture', title: 'System Architecture', description: 'High-level flow and main components (frontend, backend, database, external integrations).', enabled: true, order: 17, category: 'architecture', hasDiagram: true, hasTable: false },
+        { id: 'tech_stack', title: 'Tech Stack', description: 'Backend, frontend, database, infrastructure, and other tools as found in dependency files.', enabled: true, order: 18, category: 'technical', hasDiagram: false, hasTable: true },
+        { id: 'codebase_structure', title: 'Codebase Structure', description: 'Repository layout, key folders/modules, and component descriptions.', enabled: true, order: 19, category: 'technical', hasDiagram: false, hasTable: true },
+        { id: 'database_design', title: 'Database Design', description: 'Database type, key tables/collections, and field relationships from schema definitions.', enabled: true, order: 20, category: 'technical', hasDiagram: true, hasTable: true },
+        { id: 'api_documentation', title: 'API Documentation', description: 'Key endpoints with method, request, response, and auth requirements.', enabled: true, order: 21, category: 'api', hasDiagram: false, hasTable: true },
+        { id: 'core_workflows', title: 'Core Workflows', description: 'User actions and system responses traced step-by-step through actual code paths.', enabled: true, order: 22, category: 'workflows', hasDiagram: true, hasTable: false },
+        { id: 'integrations_external', title: 'Integrations & External Services', description: 'Third-party services, their purpose, usage, and error/failure handling.', enabled: true, order: 23, category: 'integrations', hasDiagram: false, hasTable: true },
+        { id: 'security_overview', title: 'Security', description: 'Authentication and authorization mechanisms as implemented in the codebase.', enabled: true, order: 24, category: 'security', hasDiagram: false, hasTable: false },
+    ];
 }
-
-export function assembleSectionsToPrompt(sections: TemplateSection[], optionalNotes?: string): string {
-  const enabled = sections
-    .filter((s) => s.enabled)
-    .sort((a, b) => a.order - b.order);
-
-  const sectionPrompts = enabled
-    .map((s) => SECTION_PROMPT_MAP[s.id])
-    .filter(Boolean);
-
-  let prompt = PREAMBLE_PROMPT + '\n\nOUTPUT\nProduce ONE Markdown document with the following sections and professional writing throughout:\n';
-  prompt += sectionPrompts.join('\n\n');
-  prompt += '\n\n' + QUALITY_GATES_PROMPT;
-
-  if (optionalNotes) {
-    prompt += '\n\n' + optionalNotes;
-  }
-
-  return prompt;
+export function assembleSectionsToPrompt(sections, optionalNotes) {
+    const enabled = sections
+        .filter((s) => s.enabled)
+        .sort((a, b) => a.order - b.order);
+    const sectionPrompts = enabled
+        .map((s) => SECTION_PROMPT_MAP[s.id])
+        .filter(Boolean);
+    let prompt = PREAMBLE_PROMPT + '\n\nOUTPUT\nProduce ONE Markdown document with the following sections and professional writing throughout:\n';
+    prompt += sectionPrompts.join('\n\n');
+    prompt += '\n\n' + QUALITY_GATES_PROMPT;
+    if (optionalNotes) {
+        prompt += '\n\n' + optionalNotes;
+    }
+    return prompt;
 }
-
 // Legacy single-string template for backward compatibility
 export const DEFAULT_DAMAC_TEMPLATE = assembleSectionsToPrompt(getDefaultSections());

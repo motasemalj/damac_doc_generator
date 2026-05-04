@@ -34,6 +34,15 @@ function isCoverTitle(text: string): boolean {
   return /technical design document(?:ation)?|\bTDD\b/i.test(text);
 }
 
+function isGenericTddTitle(text: string): boolean {
+  const normalized = normalizeHeadingText(text).toLowerCase();
+  return (
+    normalized === 'technical design documentation' ||
+    normalized === 'technical design document' ||
+    normalized === 'tdd'
+  );
+}
+
 function isTableOfContents(text: string): boolean {
   return normalizeHeadingText(text).toLowerCase() === 'table of contents';
 }
@@ -88,8 +97,26 @@ export function getDocumentStructure(markdown: string): DocumentStructure {
   }
 
   const coverHeading = parseHeading(lines[coverHeadingIndex]);
-  const coverTitle = coverHeading?.text ?? null;
-  const systemName = coverTitle ? deriveSystemName(coverTitle) : null;
+  let coverTitle = coverHeading?.text ?? null;
+  let systemName = coverTitle ? deriveSystemName(coverTitle) : null;
+
+  // If the cover heading is a generic "Technical Design Documentation", try to recover
+  // the actual system name from a nearby heading (common when the model outputs two H1s).
+  if (coverTitle && (isGenericTddTitle(coverTitle) || isGenericTddTitle(systemName ?? ''))) {
+    for (let i = coverHeadingIndex - 1; i >= 0 && i >= coverHeadingIndex - 12; i -= 1) {
+      const candidate = parseHeading(lines[i]);
+      if (!candidate) continue;
+      if (candidate.level > 2) continue;
+      if (isTableOfContents(candidate.text)) continue;
+      if (isCoverTitle(candidate.text)) continue;
+      const recoveredSystemName = normalizeHeadingText(candidate.text);
+      if (!recoveredSystemName) continue;
+
+      systemName = recoveredSystemName;
+      coverTitle = `${recoveredSystemName} - Technical Design Documentation`;
+      break;
+    }
+  }
 
   const tocHeadingIndex = lines.findIndex((line, index) => {
     if (index <= coverHeadingIndex) return false;

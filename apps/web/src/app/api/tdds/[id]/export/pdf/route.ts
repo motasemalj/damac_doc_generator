@@ -408,7 +408,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ id
         </g>
       </svg>
       <div class="divider"></div>
-      <h1>${coverTitle}</h1>
+      <h1>${(tdd.title || coverTitle || '').toString()}</h1>
       <h2>Technical Design Documentation</h2>
       <p class="project-name">${tdd.project?.name ?? ''}</p>
       <p class="date">${coverDate}</p>
